@@ -1,0 +1,24 @@
+{
+  "name": "ikarus/sps-logic",
+  "description": "Package to interact between SPS and Ikarus Logic workflows.",
+  "license": "BSD-3-Clause",
+  "minimum-stability": "dev",
+  "authors": [
+    {
+      "name": "Thomas Abplanalp",
+      "email": "info@tasoft.ch"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Ikarus\\SPS\\Logic\\" : "src"
+    }
+  },
+  "require" : {
+    "php": "^7.2",
+    "ikarus/logic-engine": "dev-master",
+    "ikarus/sps": "dev-master"
+  },
+  "require-dev": {
+  }
+}
