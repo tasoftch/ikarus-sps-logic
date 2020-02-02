@@ -20,5 +20,6 @@
     "ikarus/sps": "dev-master"
   },
   "require-dev": {
+    "phpunit/phpunit": "^6"
   }
 }
