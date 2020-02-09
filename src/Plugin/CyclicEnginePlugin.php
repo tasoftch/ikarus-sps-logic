@@ -37,6 +37,7 @@ namespace Ikarus\SPS\Logic\Plugin;
 
 use Ikarus\Logic\Model\Component\ComponentModelAwareInterface;
 use Ikarus\SPS\Logic\Component\ComponentByCycleUpdateInterface;
+use Ikarus\SPS\Logic\Helper\AbstractComponent2NodeHelper;
 use Ikarus\SPS\Plugin\Cyclic\CyclicPluginInterface;
 use Ikarus\SPS\Plugin\Management\CyclicPluginManagementInterface;
 
@@ -51,16 +52,34 @@ class CyclicEnginePlugin extends AbstractLogicEnginePlugin implements CyclicPlug
         $model = $this->getEngine()->getModel();
         if($model instanceof ComponentModelAwareInterface) {
             foreach($model->getComponents() as $component) {
-                if($component instanceof ComponentByCycleUpdateInterface)
-                    $this->activeNodeComponents[] = $component;
+                $this->assignComponent($component);
             }
         }
+    }
+
+    protected function assignComponent($component) {
+        if($component instanceof ComponentByCycleUpdateInterface)
+            $this->activeNodeComponents[] = $component;
     }
 
 
     public function update(CyclicPluginManagementInterface $pluginManagement)
     {
-
+        /** @var ComponentByCycleUpdateInterface $component */
+        try {
+            $this->getEngine()->beginRenderCycle();
+            foreach($this->getActiveNodeComponents() as $component) {
+                $nodes = AbstractComponent2NodeHelper::getAffectedNodesOfComponent($component->getName(), $this->getEngine());
+                foreach($nodes as $nid => $nc) {
+                    $this->getEngine()->updateNode($nid, $this->getValueProvider(), $error);
+                    if($error)
+                        throw $error;
+                }
+            }
+        } catch (\Throwable $exception) {
+            $this->getEngine()->endRenderCycle();
+            throw $exception;
+        }
     }
 
     /**

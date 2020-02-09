@@ -32,23 +32,11 @@
  *
  */
 
-namespace Ikarus\SPS\Logic\Plugin;
+namespace Ikarus\SPS\Logic\Component;
 
 
-use Ikarus\SPS\Plugin\Management\TriggeredPluginManagementInterface;
-use Ikarus\SPS\Plugin\Trigger\TriggerPluginInterface;
+use Ikarus\Logic\Model\Component\NodeComponentInterface;
 
-class TriggeredEnginePlugin extends CyclicEnginePlugin implements TriggerPluginInterface
+interface ComponentByTriggerInterface extends NodeComponentInterface
 {
-    protected function assignComponent($component)
-    {
-        parent::assignComponent($component);
-
-    }
-
-
-    public function run(TriggeredPluginManagementInterface $manager)
-    {
-        // TODO: Implement run() method.
-    }
 }

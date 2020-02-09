@@ -34,8 +34,11 @@
 
 namespace Ikarus\SPS\Logic\Plugin;
 
+use Ikarus\Logic\Data\ProjectData;
 use Ikarus\Logic\EngineInterface;
 use Ikarus\Logic\Model\Component\ComponentModelAwareInterface;
+use Ikarus\Logic\Model\Data\DataModelInterface;
+use Ikarus\Logic\ValueProvider\ValueProviderInterface;
 use Ikarus\SPS\Plugin\AbstractPlugin;
 use Ikarus\SPS\Plugin\PluginChildrenInterface;
 use Ikarus\SPS\Plugin\PluginInterface;
@@ -50,16 +53,24 @@ abstract class AbstractLogicEnginePlugin extends AbstractPlugin implements TearD
     private $engine;
     /** @var PluginInterface[] */
     private $commonPlugins = [];
+    /** @var string */
+    private $dataModelFilename;
+    /** @var ValueProviderInterface|null */
+    private $valueProvider;
 
     /**
      * AbstractLogicEnginePlugin constructor.
      * @param string $identifier
      * @param EngineInterface $engine
+     * @param string $dateModelFilename
+     * @param ValueProviderInterface|null $valueProvider
      */
-    public function __construct(string $identifier, EngineInterface $engine)
+    public function __construct(string $identifier, EngineInterface $engine, string $dateModelFilename, ValueProviderInterface $valueProvider = NULL)
     {
         $this->identifier = $identifier;
         $this->engine = $engine;
+        $this->dataModelFilename = $dateModelFilename;
+        $this->valueProvider = $valueProvider;
 
         $model = $engine->getModel();
         if($model instanceof ComponentModelAwareInterface) {
@@ -106,6 +117,12 @@ abstract class AbstractLogicEnginePlugin extends AbstractPlugin implements TearD
 
     public function setup()
     {
+        // require might not work because of opcode caching.
+        $dataModel = eval("?>" . file_get_contents( $this->getDataModelFilename() ));
+        if($dataModel instanceof DataModelInterface) {
+            $dataModel = new ProjectData($dataModel);
+        }
+        $this->getEngine()->bindData($dataModel);
         $this->getEngine()->activate();
     }
 
@@ -120,5 +137,29 @@ abstract class AbstractLogicEnginePlugin extends AbstractPlugin implements TearD
     public function getCommonPlugins(): array
     {
         return $this->commonPlugins;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDataModelFilename(): string
+    {
+        return $this->dataModelFilename;
+    }
+
+    /**
+     * @return ValueProviderInterface|null
+     */
+    public function getValueProvider(): ?ValueProviderInterface
+    {
+        return $this->valueProvider;
+    }
+
+    /**
+     * @param ValueProviderInterface|null $valueProvider
+     */
+    public function setValueProvider(?ValueProviderInterface $valueProvider): void
+    {
+        $this->valueProvider = $valueProvider;
     }
 }

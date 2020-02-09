@@ -32,23 +32,22 @@
  *
  */
 
-namespace Ikarus\SPS\Logic\Plugin;
+namespace Ikarus\SPS\Logic\Helper;
 
 
-use Ikarus\SPS\Plugin\Management\TriggeredPluginManagementInterface;
-use Ikarus\SPS\Plugin\Trigger\TriggerPluginInterface;
+use Ikarus\Logic\Engine;
+use Ikarus\Logic\EngineInterface;
+use TASoft\Util\ValueInjector;
 
-class TriggeredEnginePlugin extends CyclicEnginePlugin implements TriggerPluginInterface
+abstract class AbstractComponent2NodeHelper
 {
-    protected function assignComponent($component)
-    {
-        parent::assignComponent($component);
-
-    }
-
-
-    public function run(TriggeredPluginManagementInterface $manager)
-    {
-        // TODO: Implement run() method.
+    public static function getAffectedNodesOfComponent(string $componentName, EngineInterface $engine): array {
+        $X = (new ValueInjector($engine, Engine::class))->_X;
+        $list = [];
+        foreach($X["nd"] as $nid => $cInfo) {
+            if($cInfo["c"] == $componentName)
+                $list[$nid] = $cInfo;
+        }
+        return $list;
     }
 }
